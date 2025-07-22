@@ -8,14 +8,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
+ENV PORT=8080
+EXPOSE 8080
 
-EXPOSE 5000
-
-CMD ["flask", "run"]
+# アプリを起動するコマンド
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]

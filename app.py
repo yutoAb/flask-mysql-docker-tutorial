@@ -1,15 +1,16 @@
 from flask import Flask, render_template, request, redirect  # Flaskアプリケーションに必要なモジュールをインポート
 import mysql.connector  # MySQLデータベースに接続するためのモジュール
+import os
 
 app = Flask(__name__)  # Flaskアプリケーションのインスタンスを作成
 
 def get_db_connection():
     # MySQLデータベースへの接続を確立する関数
     return mysql.connector.connect(
-        host='db',  # MySQLコンテナのホスト名（docker-compose.ymlのサービス名を指定）
-        user='root',  # MySQLのユーザー名
-        password='password',  # MySQLのパスワード
-        database='flask_db'  # 接続するデータベース名
+        unix_socket=os.environ['DB_SOCKET'],
+        user=os.environ['DB_USER'],
+        password=os.environ['DB_PASS'],
+        database=os.environ['DB_NAME'],
     )
 
 @app.route('/')
@@ -35,5 +36,6 @@ def add_message():
     connection.close()  # データベース接続を閉じる
     return redirect('/')  # メッセージ追加後、ホームページにリダイレクト
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # アプリケーションをホスト0.0.0.0でポート5000番で実行（コンテナ内で利用）
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
